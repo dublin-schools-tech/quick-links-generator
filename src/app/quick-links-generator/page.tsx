@@ -49,7 +49,8 @@ const Page = () => {
           link.name
         }" href="${link.url}">
     <span aria-hidden="true" class="icon-bubble">
-      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">${
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor">
+${
         iconData ? iconData.svg : ""
       }</svg>
     </span>
@@ -108,6 +109,7 @@ const Page = () => {
     height: 20px;
     stroke: #fff !important;
     fill: #fff !important;
+    transform: translateX(3px);
   }
 </style>
 </div>
