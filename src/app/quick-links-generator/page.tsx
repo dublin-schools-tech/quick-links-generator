@@ -40,6 +40,12 @@ const Page = () => {
     setLinks(updatedLinks);
   };
 
+  const deleteAllLinks = () => {
+    if (confirm("Are you sure you want to delete all links?")) {
+      setLinks([]);
+    }
+  };
+
   const generateHTML = () => {
     const htmlLinks = links
       .map((link) => {
@@ -50,9 +56,7 @@ const Page = () => {
         }" href="${link.url}">
     <span aria-hidden="true" class="icon-bubble">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor">
-${
-        iconData ? iconData.svg : ""
-      }</svg>
+${iconData ? iconData.svg : ""}</svg>
     </span>
     ${link.name}
   </a></li>`;
@@ -130,6 +134,8 @@ ${htmlLinks}
     }
   };
 
+  const selectedIcon = icons.find((icon) => icon.id === newLink.icon);
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-200 font-mono">
       <Header
@@ -174,18 +180,32 @@ ${htmlLinks}
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Icon
                 </label>
-                <select
-                  name="icon"
-                  value={newLink.icon}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
-                >
-                  {icons.map((icon) => (
-                    <option key={icon.id} value={icon.id}>
-                      {icon.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full">
+                    {selectedIcon && (
+                      <svg
+                        viewBox="0 0 648 512"
+                        width="16"
+                        height="16"
+                        className=""
+                        dangerouslySetInnerHTML={{ __html: selectedIcon.svg }}
+                      >
+                      </svg>
+                    )}
+                  </div>
+                  <select
+                    name="icon"
+                    value={newLink.icon}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+                  >
+                    {icons.map((icon) => (
+                      <option key={icon.id} value={icon.id}>
+                        {icon.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             <button
@@ -198,9 +218,19 @@ ${htmlLinks}
           </div>
 
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 font-mono text-gray-700">
-              Your Links ({links.length})
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold font-mono text-gray-700">
+                Your Links ({links.length})
+              </h2>
+              {links.length > 0 && (
+                <button
+                  onClick={deleteAllLinks}
+                  className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-sm"
+                >
+                  Delete All
+                </button>
+              )}
+            </div>
             {links.length === 0 ? (
               <p className="text-gray-500">No links added yet.</p>
             ) : (
