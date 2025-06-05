@@ -21,6 +21,16 @@ export default function Home() {
       textColor: "text-green-600",
       download: false
     },
+    {
+      name: "New Employee Auto Email Script",
+      description: "Automate welcome emails for new employees",
+      url: "/new-employee-auto-email-script",
+      icon: "📧",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200",
+      textColor: "text-yellow-600",
+      download: false
+    }
   ];
 
   return (
