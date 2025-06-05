@@ -64,13 +64,13 @@ ${iconData ? iconData.svg : ""}
 
     return `
 <div>
-<style type="text/css">
-  .quick-links-container {
+<style type="text/css">.quick-links-container {
     width: 100%;
     background: #fff;
     padding: 1rem 1.5rem;
     font-family: "Poppins", sans-serif;
   }
+
   .quick-links-list {
     list-style: none;
     padding: 0;
@@ -79,10 +79,12 @@ ${iconData ? iconData.svg : ""}
     flex-wrap: wrap;
     gap: 1.5rem 2.5rem;
   }
+
   .quick-links-list li {
     flex: 1 1 45%;
     min-width: 220px;
   }
+
   .quick-link {
     display: flex;
     align-items: center;
@@ -93,10 +95,12 @@ ${iconData ? iconData.svg : ""}
     font-size: 1rem;
     transition: color 0.3s ease;
   }
+
   .quick-link:hover,
   .quick-link:focus {
     color: #004d3d;
   }
+
   .icon-bubble {
     background-color: #006853;
     border-radius: 50%;
@@ -106,12 +110,16 @@ ${iconData ? iconData.svg : ""}
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 4px;
   }
+
   .icon-bubble svg {
     width: 20px;
-    height: 20px;
+    height: 100%;
+    display: block;
     stroke: #fff !important;
     fill: #fff !important;
+    vertical-align: middle;
   }
 </style>
 </div>
@@ -181,12 +189,13 @@ ${htmlLinks}
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full">
                     <div
-                      className="w-4 h-4 text-center"
+                      className="w-4 h-4 flex items-center justify-center"
                       dangerouslySetInnerHTML={{
                         __html: selectedIcon ? selectedIcon.svg : "",
                       }}
                     ></div>
                   </div>
+
                   <select
                     name="icon"
                     value={newLink.icon}
