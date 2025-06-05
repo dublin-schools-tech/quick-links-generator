@@ -55,8 +55,7 @@ const Page = () => {
           link.name
         }" href="${link.url}">
     <span aria-hidden="true" class="icon-bubble">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor">
-${iconData ? iconData.svg : ""}</svg>
+${iconData ? iconData.svg : ""}
     </span>
     ${link.name}
   </a></li>`;
@@ -113,7 +112,6 @@ ${iconData ? iconData.svg : ""}</svg>
     height: 20px;
     stroke: #fff !important;
     fill: #fff !important;
-    transform: translateX(3px);
   }
 </style>
 </div>
@@ -182,16 +180,12 @@ ${htmlLinks}
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full">
-                    {selectedIcon && (
-                      <svg
-                        viewBox="0 0 648 512"
-                        width="16"
-                        height="16"
-                        className=""
-                        dangerouslySetInnerHTML={{ __html: selectedIcon.svg }}
-                      >
-                      </svg>
-                    )}
+                    <div
+                      className="w-4 h-4 text-center"
+                      dangerouslySetInnerHTML={{
+                        __html: selectedIcon ? selectedIcon.svg : "",
+                      }}
+                    ></div>
                   </div>
                   <select
                     name="icon"
