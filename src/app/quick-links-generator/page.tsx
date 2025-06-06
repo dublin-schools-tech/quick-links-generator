@@ -64,7 +64,8 @@ ${iconData ? iconData.svg : ""}
 
     return `
 <div>
-<style type="text/css">.quick-links-container {
+<style type="text/css">
+.quick-links-container {
     width: 100%;
     background: #fff;
     padding: 1rem 1.5rem;
@@ -115,7 +116,7 @@ ${iconData ? iconData.svg : ""}
 
   .icon-bubble svg {
     width: 20px;
-    height: 100%;
+    height: 20px;
     display: block;
     stroke: #fff !important;
     fill: #fff !important;
