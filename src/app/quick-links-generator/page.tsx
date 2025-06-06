@@ -115,12 +115,12 @@ ${iconData ? iconData.svg : ""}
   }
 
   .icon-bubble svg {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+    margin: auto;
     display: block;
     stroke: #fff !important;
     fill: #fff !important;
-    vertical-align: middle;
   }
 </style>
 </div>
