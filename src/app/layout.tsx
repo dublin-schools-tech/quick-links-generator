@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DCS Utilities",
-  description: "All of the Dublin City Schools utilities created by the interns in one place",
+  title: "Quick Links Generator",
+  description: "Easily create quick links for the DCS website",
 };
 
 export default function RootLayout({
