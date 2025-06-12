@@ -147,8 +147,8 @@ ${htmlLinks}
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-200 font-mono">
       <Header
-        title="Quick Links Generator"
-        subtitle="Create and manage quick links easily"
+        title="DCS Quick Links Generator"
+        subtitle="Easily create quick links for the DCS website"
       />
       <div className="w-full px-4">
         <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8 py-8 mx-auto bg-white rounded-lg shadow-md my-12">
