@@ -1,3 +1,3 @@
-# DCS Utilities Website
+# Quick Links Generator
 
-A centralized hub for all tools and scripts developed by interns, designed to assist administrators with essential district operations.
+Generate quick links for the DCS website
