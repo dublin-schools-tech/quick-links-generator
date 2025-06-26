@@ -1,3 +1,4 @@
+// Full updated React page with import HTML functionality and error handling - FIXED ICON BUG
 "use client";
 import React, { useState } from "react";
 import Header from "@/components/Header";
@@ -11,21 +12,15 @@ type LinkItem = {
 
 const Page = () => {
   const [links, setLinks] = useState<LinkItem[]>([]);
-  const [newLink, setNewLink] = useState<LinkItem>({
-    name: "",
-    url: "",
-    icon: "link",
-  });
+  const [newLink, setNewLink] = useState<LinkItem>({ name: "", url: "", icon: "link" });
+  const [existingHTML, setExistingHTML] = useState("");
   const [showPreview, setShowPreview] = useState(true);
+  const [showImportBox, setShowImportBox] = useState(false);
+  const [importError, setImportError] = useState("");
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewLink({
-      ...newLink,
-      [name]: value,
-    });
+    setNewLink({ ...newLink, [name]: value });
   };
 
   const addLink = () => {
@@ -47,16 +42,77 @@ const Page = () => {
     }
   };
 
+  const toggleImportBox = () => {
+    setShowImportBox((prev) => {
+      const next = !prev;
+      if (next) {
+        setExistingHTML("");
+        setLinks([]);
+      }
+      return next;
+    });
+    setImportError("");
+  };
+
+  const parseExistingHTML = () => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(existingHTML, "text/html");
+      const anchors = doc.querySelectorAll("a.quick-link");
+      if (!anchors.length) throw new Error("No quick-link anchors found.");
+
+      const items: LinkItem[] = Array.from(anchors).map((el) => {
+        const name = el.getAttribute("data-page-name") || el.textContent?.trim() || "Unnamed";
+        const url = el.getAttribute("href") || "#";
+        
+        const svgElement = el.querySelector("svg");
+        let iconId = "link"; 
+        
+        if (svgElement) {
+          const viewBox = svgElement.getAttribute("viewBox") || "";
+          const paths = Array.from(svgElement.querySelectorAll("path")).map(
+            path => path.getAttribute("d") || ""
+          ).join("");
+
+          const matchingIcon = icons.find(icon => {
+            const iconDoc = parser.parseFromString(icon.svg, "text/html");
+            const iconSvg = iconDoc.querySelector("svg");
+            if (!iconSvg) return false;
+            
+            const iconViewBox = iconSvg.getAttribute("viewBox") || "";
+            const iconPaths = Array.from(iconSvg.querySelectorAll("path")).map(
+              path => path.getAttribute("d") || ""
+            ).join("");
+            
+            return viewBox === iconViewBox && paths === iconPaths;
+          });
+          
+          if (matchingIcon) {
+            iconId = matchingIcon.id;
+          }
+        }
+        
+        return { name, url, icon: iconId };
+      });
+      
+      setLinks(items);
+      setImportError("");
+      alert(`${items.length} link(s) imported.`);
+    } catch (error: any) {
+      setImportError(error.message || "Failed to parse HTML.");
+    }
+  };
+
   const generateHTML = () => {
     const htmlLinks = links
       .map((link) => {
         const iconData = icons.find((i) => i.id === link.icon);
+        const iconSvg = iconData ? iconData.svg : icons.find(i => i.id === "link")?.svg || "";
+        
         return `
-  <li><a aria-label="${link.name}" class="quick-link" data-page-name="${
-          link.name
-        }" href="${link.url}">
+  <li><a aria-label="${link.name}" class="quick-link" data-page-name="${link.name}" href="${link.url}">
     <span aria-hidden="true" class="icon-bubble">
-${iconData ? iconData.svg : ""}
+      <svg viewBox="0 0 24 24" width="24" height="24">${iconSvg}</svg>
     </span>
     ${link.name}
   </a></li>`;
@@ -67,65 +123,58 @@ ${iconData ? iconData.svg : ""}
 <div>
 <style type="text/css">
 .quick-links-container {
-    width: 100%;
-    background: #fff;
-    padding: 1rem 1.5rem;
-    font-family: "Poppins", sans-serif;
-  }
-
-  .quick-links-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem 2.5rem;
-  }
-
-  .quick-links-list li {
-    flex: 1 1 45%;
-    min-width: 220px;
-  }
-
-  .quick-link {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    text-decoration: none;
-    color: #006853;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: color 0.3s ease;
-  }
-
-  .quick-link:hover,
-  .quick-link:focus {
-    color: #004d3d;
-  }
-
-  .icon-bubble {
-    background-color: #006853;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-  }
-
-  .icon-bubble svg {
-    width: 24px;
-    height: 24px;
-    margin: auto;
-    display: block;
-    stroke: #fff !important;
-    fill: #fff !important;
-  }
+  width: 100%;
+  background: #fff;
+  padding: 1rem 1.5rem;
+  font-family: "Poppins", sans-serif;
+}
+.quick-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.5rem;
+}
+.quick-links-list li {
+  flex: 1 1 45%;
+  min-width: 220px;
+}
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: #006853;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+.quick-link:hover,
+.quick-link:focus {
+  color: #004d3d;
+}
+.icon-bubble {
+  background-color: #006853;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+.icon-bubble svg {
+  width: 24px;
+  height: 24px;
+  margin: auto;
+  display: block;
+  stroke: #fff !important;
+  fill: #fff !important;
+}
 </style>
 </div>
-
 <section class="quick-links-container">
   <ul class="quick-links-list">
 ${htmlLinks}
@@ -146,13 +195,41 @@ ${htmlLinks}
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-200 font-mono">
-      <Header
-        title="DCS Quick Links Generator"
-        subtitle="Easily create quick links for the DCS website"
-      />
+      <Header title="DCS Quick Links Generator" subtitle="Easily create quick links for the DCS website" />
       <div className="w-full px-4">
         <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8 py-8 mx-auto bg-white rounded-lg shadow-md my-12">
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+
+          {/* Import HTML Section */}
+          <div className="mb-6">
+            <button
+              onClick={toggleImportBox}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              {showImportBox ? "Hide Import Box" : "Import Existing HTML"}
+            </button>
+
+            {showImportBox && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Paste Existing Quick Links HTML</label>
+                <textarea
+                  value={existingHTML}
+                  onChange={(e) => setExistingHTML(e.target.value)}
+                  placeholder="Paste your existing quick links HTML here..."
+                  rows={6}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm text-gray-700"
+                />
+                <button
+                  onClick={parseExistingHTML}
+                  className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Parse & Import
+                </button>
+                {importError && <p className="mt-2 text-red-600 text-sm">Error: {importError}</p>}
+              </div>
+            )}
+          </div>
+
+         <div className="mb-8 p-4 bg-gray-50 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 font-mono text-gray-700">
               Add New Link
             </h2>
@@ -247,13 +324,14 @@ ${htmlLinks}
                     <div className="flex items-center">
                       <span className="mr-3">
                         <svg
-                          viewBox="0 0 512 512"
+                          viewBox="0 0 24 24"
                           width="20"
                           height="20"
                           className="fill-current text-blue-600"
-                        >
-                          {icons.find((i) => i.id === link.icon)?.svg}
-                        </svg>
+                          dangerouslySetInnerHTML={{
+                            __html: icons.find((i) => i.id === link.icon)?.svg || ""
+                          }}
+                        />
                       </span>
                       <span className="font-medium font-mono text-gray-700">
                         {link.name}
@@ -329,7 +407,7 @@ ${htmlLinks}
             ) : (
               <p className="text-gray-500">Add some links to generate HTML.</p>
             )}
-          </div>
+          </div>    
         </div>
       </div>
     </div>
