@@ -1,9 +1,7 @@
-// Full updated React page with import HTML functionality and error handling - FIXED ICON BUG
 "use client";
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import { icons } from "@/app/iconData";
-import ReactMarkdown from 'react-markdown';
 
 type LinkItem = {
   name: string;
@@ -11,48 +9,22 @@ type LinkItem = {
   icon: string;
 };
 
-
 const Page = () => {
   const [links, setLinks] = useState<LinkItem[]>([]);
-  const [newLink, setNewLink] = useState<LinkItem>({ name: "", url: "", icon: "link" });
+  const [newLink, setNewLink] = useState<LinkItem>({
+    name: "",
+    url: "",
+    icon: "link",
+  });
   const [existingHTML, setExistingHTML] = useState("");
   const [showPreview, setShowPreview] = useState(true);
   const [showImportBox, setShowImportBox] = useState(false);
   const [importError, setImportError] = useState("");
-  const [showInstructions, setShowInstructions] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(false);
 
-  const markdown = `
-**If you need to create a new Quick Links section:**
-
-1. Navigate to the "Add Quick Links" tab on this website
-
-2. In the box titled "Add New Links", add the text you would like to display on screen in the "Link Name" field, paste the link into the URL field, and select an appropriate matching icon from the list presented.
-
-*Tip: The icons are from the free tier of an icon set called "Font Awesome". Search for icons to use here: https://fontawesome.com/icons (only the free ones are available), and type in the name in the icon field*
-
-3. Press "Add Link" when you are done. As you add more links, they will show up in the "Your Links" section
-
-4. To see what the Quick Links look like, press "Open Preview"
-
-5. When all links are added, press the "Copy HTML to Clipboard" button
-
-6. With the HTML copied, navigate to the desired page in FinalSite, add a new element, and select "Embed"
-
-7. In the embed element, paste the copied HTML code
-
-
-
-**If you need to edit an existing Quick Links section:**
-
-1. Find the existing Quick Links element in the website. Press the gear button in the top right corner to open the embed code. Copy this.
-
-2. In this website, press the "Import Existing HTML" button and paste the copied code in the box. Press "Parse & Import"
-
-3. Use as described above.`
-
-
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setNewLink({ ...newLink, [name]: value });
   };
@@ -96,39 +68,42 @@ const Page = () => {
       if (!anchors.length) throw new Error("No quick-link anchors found.");
 
       const items: LinkItem[] = Array.from(anchors).map((el) => {
-        const name = el.getAttribute("data-page-name") || el.textContent?.trim() || "Unnamed";
+        const name =
+          el.getAttribute("data-page-name") ||
+          el.textContent?.trim() ||
+          "Unnamed";
         const url = el.getAttribute("href") || "#";
-        
+
         const svgElement = el.querySelector("svg");
-        let iconId = "link"; 
-        
+        let iconId = "link";
+
         if (svgElement) {
           const viewBox = svgElement.getAttribute("viewBox") || "";
-          const paths = Array.from(svgElement.querySelectorAll("path")).map(
-            path => path.getAttribute("d") || ""
-          ).join("");
+          const paths = Array.from(svgElement.querySelectorAll("path"))
+            .map((path) => path.getAttribute("d") || "")
+            .join("");
 
-          const matchingIcon = icons.find(icon => {
+          const matchingIcon = icons.find((icon) => {
             const iconDoc = parser.parseFromString(icon.svg, "text/html");
             const iconSvg = iconDoc.querySelector("svg");
             if (!iconSvg) return false;
-            
+
             const iconViewBox = iconSvg.getAttribute("viewBox") || "";
-            const iconPaths = Array.from(iconSvg.querySelectorAll("path")).map(
-              path => path.getAttribute("d") || ""
-            ).join("");
-            
+            const iconPaths = Array.from(iconSvg.querySelectorAll("path"))
+              .map((path) => path.getAttribute("d") || "")
+              .join("");
+
             return viewBox === iconViewBox && paths === iconPaths;
           });
-          
+
           if (matchingIcon) {
             iconId = matchingIcon.id;
           }
         }
-        
+
         return { name, url, icon: iconId };
       });
-      
+
       setLinks(items);
       setImportError("");
       alert(`${items.length} link(s) imported.`);
@@ -141,8 +116,10 @@ const Page = () => {
     const htmlLinks = links
       .map((link) => {
         const iconData = icons.find((i) => i.id === link.icon);
-        const iconSvg = iconData ? iconData.svg : icons.find(i => i.id === "link")?.svg || "";
-        
+        const iconSvg = iconData
+          ? iconData.svg
+          : icons.find((i) => i.id === "link")?.svg || "";
+
         return `
   <li><a aria-label="${link.name}" class="quick-link" data-page-name="${link.name}" href="${link.url}">
     <span aria-hidden="true" class="icon-bubble">
@@ -229,45 +206,99 @@ ${htmlLinks}
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 font-mono">
-      <Header title="DCS Quick Links Generator" subtitle="Easily create quick links for the DCS website" />
-      
+      <Header
+        title="DCS Quick Links Generator"
+        subtitle="Easily create quick links for the DCS website"
+      />
+
       <div className="w-full max-w-4xl my-12">
         <div className="flex flex-row items-start w-full">
-          <div className={`rounded-t-xl text-lg w-fit h-fit p-2 text-gray-700 ${showInstructions ? "bg-white ": "bg-gray-200"}`} onClick={() => setShowInstructions(true)}>
-            Instructions
-          </div>
-          <div className={`rounded-t-xl text-lg w-fit h-fit p-2 text-gray-700 ${showInstructions ? "bg-gray-200" : "bg-white"}`} onClick={() => setShowInstructions(false)}>
+          <div
+            className={`rounded-t-xl text-lg w-fit h-fit p-2 text-gray-700 cursor-pointer ${
+              !showInstructions ? "bg-white " : "bg-gray-200"
+            }`}
+            onClick={() => setShowInstructions(false)}
+          >
             Add Quick Links
+          </div>
+          <div
+            className={`rounded-t-xl text-lg w-fit h-fit p-2 text-gray-700 cursor-pointer ${
+              showInstructions ? "bg-white" : "bg-gray-200"
+            }`}
+            onClick={() => setShowInstructions(true)}
+          >
+            Instructions
           </div>
         </div>
         <div className="w-full px-4 sm:px-6 lg:px-8 py-8 mx-auto  bg-white rounded-b-lg shadow-md">
           {showInstructions ? (
             <>
-              <div className="text-xl font-semibold text-gray-700">Instructions</div>
-              <div><br /><strong>If you need to create a new Quick Links section:</strong><br /><br />&nbsp;1. Navigate to the "Add Quick Links" tab on this website
-
-<br/><br/>&nbsp;2. In the box titled "Add New Links", add the text you would like to display on screen in the "Link Name" field, paste the link into the URL field, and select an appropriate matching icon from the list presented.
-
-<br/><br/>&nbsp;<em>*Tip: The icons are from the free tier of an icon set called "Font Awesome". Search for icons to use here: https://fontawesome.com/icons (only the free ones are available), and type in the name in the icon field</em>
-
-<br/><br/>&nbsp;3. Press "Add Link" when you are done. As you add more links, they will show up in the "Your Links" section
-
-<br/><br/>&nbsp;4. To see what the Quick Links look like, press "Open Preview"
-
-<br/><br/>&nbsp;5. When all links are added, press the "Copy HTML to Clipboard" button
-
-<br/><br/>&nbsp;6. With the HTML copied, navigate to the desired page in FinalSite, add a new element, and select "Embed"
-
-<br/><br/>&nbsp;7. In the embed element, paste the copied HTML code
-<br /><br/><strong>If you need to create a new Quick Links section:</strong><br />
-<br/>&nbsp;1. Find the existing Quick Links element in the website. Press the gear button in the top right corner to open the embed code. Copy this.
-
-<br/><br/>&nbsp;2. In this website, press the "Import Existing HTML" button and paste the copied code in the box. Press "Parse & Import"
-
-<br/><br/>&nbsp;3. Use as described above.
-</div>
+              <div className="text-xl font-semibold text-gray-700">
+                Instructions
+              </div>
+              <div className="text-gray-700">
+                <br />
+                <strong>
+                  If you need to create a new Quick Links section:
+                </strong>
+                <br />
+                <br />
+                &nbsp;1. Navigate to the "Add Quick Links" tab on this website
+                <br />
+                <br />
+                &nbsp;2. In the box titled "Add New Links", add the text you
+                would like to display on screen in the "Link Name" field, paste
+                the link into the URL field, and select an appropriate matching
+                icon from the list presented.
+                <br />
+                <br />
+                &nbsp;
+                <em>
+                  *Tip: The icons are from the free tier of an icon set called
+                  "Font Awesome". Search for icons to use here:
+                  https://fontawesome.com/icons (only the free ones are
+                  available), and type in the name in the icon field
+                </em>
+                <br />
+                <br />
+                &nbsp;3. Press "Add Link" when you are done. As you add more
+                links, they will show up in the "Your Links" section
+                <br />
+                <br />
+                &nbsp;4. To see what the Quick Links look like, press "Open
+                Preview"
+                <br />
+                <br />
+                &nbsp;5. When all links are added, press the "Copy HTML to
+                Clipboard" button
+                <br />
+                <br />
+                &nbsp;6. With the HTML copied, navigate to the desired page in
+                FinalSite, add a new element, and select "Embed"
+                <br />
+                <br />
+                &nbsp;7. In the embed element, paste the copied HTML code
+                <br />
+                <br />
+                <strong>
+                  If you need to edit an existing Quick Links section:
+                </strong>
+                <br />
+                <br />
+                &nbsp;1. Find the existing Quick Links element in the website.
+                Press the gear button in the top right corner to open the embed
+                code. Copy this.
+                <br />
+                <br />
+                &nbsp;2. In this website, press the "Import Existing HTML"
+                button and paste the copied code in the box. Press "Parse &
+                Import"
+                <br />
+                <br />
+                &nbsp;3. Use as described above.
+              </div>
             </>
-           ) : ( 
+          ) : (
             <>
               <div className="mb-6">
                 <button
@@ -279,7 +310,9 @@ ${htmlLinks}
 
                 {showImportBox && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Paste Existing Quick Links HTML</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Paste Existing Quick Links HTML
+                    </label>
                     <textarea
                       value={existingHTML}
                       onChange={(e) => setExistingHTML(e.target.value)}
@@ -289,16 +322,20 @@ ${htmlLinks}
                     />
                     <button
                       onClick={parseExistingHTML}
-                      className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                      className="mt-2 px-4 py-2 bg-[#006853] text-white rounded-md hover:bg-green-700 transition-colors"
                     >
                       Parse & Import
                     </button>
-                    {importError && <p className="mt-2 text-red-600 text-sm">Error: {importError}</p>}
+                    {importError && (
+                      <p className="mt-2 text-red-600 text-sm">
+                        Error: {importError}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
 
-            <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
                 <h2 className="text-xl font-semibold mb-4 font-mono text-gray-700">
                   Add New Link
                 </h2>
@@ -398,7 +435,9 @@ ${htmlLinks}
                               height="20"
                               className="fill-current text-blue-600"
                               dangerouslySetInnerHTML={{
-                                __html: icons.find((i) => i.id === link.icon)?.svg || ""
+                                __html:
+                                  icons.find((i) => i.id === link.icon)?.svg ||
+                                  "",
                               }}
                             />
                           </span>
@@ -474,9 +513,11 @@ ${htmlLinks}
                     {generateHTML()}
                   </pre>
                 ) : (
-                  <p className="text-gray-500">Add some links to generate HTML.</p>
+                  <p className="text-gray-500">
+                    Add some links to generate HTML.
+                  </p>
                 )}
-              </div> 
+              </div>
             </>
           )}
         </div>
